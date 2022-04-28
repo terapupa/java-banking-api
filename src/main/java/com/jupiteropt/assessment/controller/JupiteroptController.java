@@ -40,8 +40,6 @@ public class JupiteroptController {
   @PutMapping(path = "/bank/createAccount")
   @ResponseBody
   public TransferResultDto createAccount(@RequestBody TransferDto dto) {
-//    CustomerEntity entity = new CustomerEntity(guid, Instant.now().toEpochMilli(), dto.getLatitude(),
-//        dto.getLongitude(), dto.getAccuracy());
 //    repository.save(entity);
     return null;
   }
@@ -56,8 +54,6 @@ public class JupiteroptController {
   @PostMapping(path = "/bank/transfer")
   @ResponseBody
   public TransferResultDto transfer(@RequestBody TransferDto dto) {
-//    CustomerEntity entity = new CustomerEntity(guid, Instant.now().toEpochMilli(), dto.getLatitude(),
-//        dto.getLongitude(), dto.getAccuracy());
 //    repository.save(entity);
     return null;
   }
