@@ -65,7 +65,7 @@ public class JupiteroptController {
     AccountEntity accountEntity = new AccountEntity();
     accountEntity.setBalance(amount);
     accountEntity.setCustomerEntity(customerEntity);
-    accountEntityRepository.save(accountEntity);
+    accountEntity = accountEntityRepository.save(accountEntity);
     return new ResponseEntity<>(accountEntity, HttpStatus.OK);
   }
 
@@ -77,15 +77,25 @@ public class JupiteroptController {
    */
   @PostMapping(path = "/bank/transfer")
   @ResponseBody
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public ResponseEntity<TransferHistoryEntity> transfer(@RequestBody TransferDto dto) {
     AccountEntity from = Optional.ofNullable(accountEntityRepository.findByAccountId(dto.getAccountFrom()))
         .orElseThrow(IllegalArgumentException::new);
     AccountEntity to = Optional.ofNullable(accountEntityRepository.findByAccountId(dto.getAccountTo()))
         .orElseThrow(IllegalArgumentException::new);
-
-//    AccountEntity from = accountEntityRepository.findByAccountId(dto.getAccountFrom())
-//        .o
-    return new ResponseEntity<>(HttpStatus.OK);
+    if (from.getBalance() < dto.getAmount()) {
+      throw new AppException("Not enough fund for transfer");
+    }
+    from.setBalance(from.getBalance()-dto.getAmount());
+    to.setBalance(to.getBalance()+dto.getAmount());
+    from = accountEntityRepository.save(from);
+    to = accountEntityRepository.save(to);
+    TransferHistoryEntity transferHistoryEntity = new TransferHistoryEntity();
+    transferHistoryEntity.setAccountFrom(from.getAccountId());
+    transferHistoryEntity.setAccountTo(to.getAccountId());
+    transferHistoryEntity.setAmount(dto.getAmount());
+    transferHistoryEntity = transferHistoryEntityRepository.save(transferHistoryEntity);
+    return new ResponseEntity<>(transferHistoryEntity, HttpStatus.OK);
   }
 
   /**
