@@ -51,9 +51,9 @@ public class JupiteroptController {
   @ResponseBody
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public ResponseEntity<AccountEntity> createAccount(@RequestBody CreateAccountDto dto) {
-    String fName = Optional.ofNullable(dto.getFirstName())
+    String fName = Optional.ofNullable(dto.getFirstName()).filter(s -> s.length() > 0)
         .orElseThrow(() -> new AppException("Customer name is empty"));
-    String lName = Optional.ofNullable(dto.getLastName())
+    String lName = Optional.ofNullable(dto.getLastName()).filter(s -> s.length() > 0)
         .orElseThrow(() -> new AppException("Customer name is empty"));
     double amount = Optional.of(dto.getInitialDeposit())
         .filter(value -> value > 0)
@@ -81,11 +81,14 @@ public class JupiteroptController {
         .orElseThrow(() -> new AppException("Account not found"));
     AccountEntity to = accountEntityRepository.findByAccountId(dto.getAccountTo())
         .orElseThrow(() -> new AppException("Account not found"));
-    if (from.getBalance() < dto.getAmount()) {
-      throw new AppException("Not enough fund for transfer");
-    }
-    from.setBalance(from.getBalance()-dto.getAmount());
-    to.setBalance(to.getBalance()+dto.getAmount());
+    double amount = Optional.of(dto.getAmount())
+        .filter(value -> value > 0)
+        .orElseThrow(() -> new AppException("Transfer anount should be > 0"));
+    double balance = Optional.of(from.getBalance())
+        .filter(value -> value > amount)
+        .orElseThrow(() -> new AppException("Not enough fund for transfer"));
+    from.setBalance(balance - amount);
+    to.setBalance(balance + amount);
     from = accountEntityRepository.save(from);
     to = accountEntityRepository.save(to);
     TransferHistoryEntity transferHistoryEntity = new TransferHistoryEntity();

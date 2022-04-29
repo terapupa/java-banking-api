@@ -32,6 +32,14 @@ public class TransferHistoryEntity {
   public TransferHistoryEntity() {
   }
 
+  public TransferHistoryEntity(Long id, double amount, long accountFrom, long accountTo) {
+    this.id = id;
+    this.amount = amount;
+    this.accountFrom = accountFrom;
+    this.accountTo = accountTo;
+  }
+
+
   public Long getId() {
     return id;
   }
