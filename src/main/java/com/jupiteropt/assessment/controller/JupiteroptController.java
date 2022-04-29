@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,9 +58,8 @@ public class JupiteroptController {
     double amount = Optional.of(dto.getInitialDeposit())
         .filter(value -> value > 0)
         .orElseThrow(() -> new AppException("Initial deposit shuld be > 0"));
-    CustomerEntity customerEntity = new CustomerEntity();
-    customerEntity.setFirstName(fName);
-    customerEntity.setLastName(lName);
+    CustomerEntity customerEntity = customerEntityRepository
+        .findByFirstNameAndLastName(fName, lName).orElse(new CustomerEntity(fName, lName));
     AccountEntity accountEntity = new AccountEntity();
     accountEntity.setBalance(amount);
     accountEntity.setCustomerEntity(customerEntity);
@@ -79,10 +77,10 @@ public class JupiteroptController {
   @ResponseBody
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public ResponseEntity<TransferHistoryEntity> transfer(@RequestBody TransferDto dto) {
-    AccountEntity from = Optional.ofNullable(accountEntityRepository.findByAccountId(dto.getAccountFrom()))
-        .orElseThrow(IllegalArgumentException::new);
-    AccountEntity to = Optional.ofNullable(accountEntityRepository.findByAccountId(dto.getAccountTo()))
-        .orElseThrow(IllegalArgumentException::new);
+    AccountEntity from = accountEntityRepository.findByAccountId(dto.getAccountFrom())
+        .orElseThrow(() -> new AppException("Account not found"));
+    AccountEntity to = accountEntityRepository.findByAccountId(dto.getAccountTo())
+        .orElseThrow(() -> new AppException("Account not found"));
     if (from.getBalance() < dto.getAmount()) {
       throw new AppException("Not enough fund for transfer");
     }
@@ -107,21 +105,23 @@ public class JupiteroptController {
   @GetMapping("/bank/{account}/balance")
   @ResponseBody
   public ResponseEntity<AccountEntity> getAccountById(@PathVariable long account) {
-    return new ResponseEntity<>(accountEntityRepository.findByAccountId(account), HttpStatus.OK);
+    AccountEntity entity = accountEntityRepository
+        .findByAccountId(account)
+        .orElseThrow(() -> new AppException("Account not found"));
+    return new ResponseEntity<>(entity, HttpStatus.OK);
   }
 
   /**
    * Retrieve account transfer history.
    *
-   * @param accountFrom - bank account transferred from.
-   * @param accountTo - bank account transferred from.
+   * @param account - bank account transferred from.
    * @return - List of TransferHistoryEntity.
    */
-  @GetMapping("/bank/history/")
+  @GetMapping("/bank/{account}/history")
   @ResponseBody
-  public ResponseEntity<List<TransferHistoryEntity>> getHistoryByAccountId(@RequestParam long accountFrom, @RequestParam long accountTo) {
+  public ResponseEntity<List<TransferHistoryEntity>> getHistoryByAccountId(@PathVariable long account) {
     return new ResponseEntity<>(
-        transferHistoryEntityRepository.findByAccountFromIsAndAccountToIs(accountFrom, accountTo), HttpStatus.OK);
+        transferHistoryEntityRepository.findByAccountFromOrAccountTo(account, account), HttpStatus.OK);
   }
 
 }

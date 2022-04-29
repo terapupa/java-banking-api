@@ -9,7 +9,7 @@ import javax.persistence.Table;
 
 /**
  * The data persistence entity.
- * The class represents the data model used by JPA and Hibernate ORM to represent the MySQL schema.
+ * The class represents the Customer data model used by JPA and Hibernate ORM to represent the MySQL schema.
  */
 
 @Entity
@@ -24,6 +24,14 @@ public class CustomerEntity {
 
   @Column(name = "last_name")
   private String lastName;
+
+  public CustomerEntity() {
+  }
+
+  public CustomerEntity(String firstName, String lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
 
   public String getFirstName() {
     return firstName;

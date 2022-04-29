@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TransferHistoryEntityRepository extends CrudRepository<TransferHistoryEntity, Long> {
-  List<TransferHistoryEntity> findByAccountFromIsAndAccountToIs(long accountFrom, long accountTo);
+
+  List<TransferHistoryEntity> findByAccountFromOrAccountTo(long accountFrom, long accountTo);
 }

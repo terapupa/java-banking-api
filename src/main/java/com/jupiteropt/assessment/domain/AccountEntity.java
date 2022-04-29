@@ -11,6 +11,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+/**
+ * The data persistence entity.
+ * The class represents the Account data model used by JPA and Hibernate ORM to represent the MySQL schema.
+ */
+
 @Entity
 @Table(name="account_entity")
 public class AccountEntity {

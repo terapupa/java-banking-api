@@ -7,6 +7,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+ * The data persistence entity.
+ * The class represents the Transfer History data model used by JPA and Hibernate ORM to represent the MySQL schema.
+ */
+
 @Entity
 @Table(name="transfer_history_entity")
 public class TransferHistoryEntity {
