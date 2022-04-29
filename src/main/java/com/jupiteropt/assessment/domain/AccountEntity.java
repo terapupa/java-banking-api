@@ -3,6 +3,7 @@ package com.jupiteropt.assessment.domain;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,7 +22,7 @@ public class AccountEntity {
   @Column(name = "balance", nullable = false)
   private double balance;
 
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
   @JoinColumn(name = "customer_entity_id")
   private CustomerEntity customerEntity;
 

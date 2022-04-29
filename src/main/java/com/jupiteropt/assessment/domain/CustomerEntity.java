@@ -1,13 +1,10 @@
 package com.jupiteropt.assessment.domain;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -27,17 +24,6 @@ public class CustomerEntity {
 
   @Column(name = "last_name")
   private String lastName;
-
-  @OneToMany(mappedBy = "customerEntity", orphanRemoval = true)
-  private List<AccountEntity> accountEntities = new ArrayList<>();
-
-  public List<AccountEntity> getAccountEntities() {
-    return accountEntities;
-  }
-
-  public void setAccountEntities(List<AccountEntity> accountEntities) {
-    this.accountEntities = accountEntities;
-  }
 
   public String getFirstName() {
     return firstName;

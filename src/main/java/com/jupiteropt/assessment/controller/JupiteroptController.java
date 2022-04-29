@@ -1,13 +1,21 @@
 package com.jupiteropt.assessment.controller;
 
 import com.jupiteropt.assessment.domain.AccountEntity;
-import com.jupiteropt.assessment.domain.AccountEntityRepository;
+import com.jupiteropt.assessment.domain.CreateAccountDto;
+import com.jupiteropt.assessment.domain.CustomerEntity;
 import com.jupiteropt.assessment.domain.TransferDto;
 import com.jupiteropt.assessment.domain.TransferHistoryEntity;
-import com.jupiteropt.assessment.domain.TransferHistoryEntityRepository;
-import com.jupiteropt.assessment.domain.TransferResultDto;
+import com.jupiteropt.assessment.exception.AppException;
+import com.jupiteropt.assessment.repository.AccountEntityRepository;
+import com.jupiteropt.assessment.repository.CustomerEntityRepository;
+import com.jupiteropt.assessment.repository.TransferHistoryEntityRepository;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,27 +31,43 @@ public class JupiteroptController {
 
   private final AccountEntityRepository accountEntityRepository;
   private final TransferHistoryEntityRepository transferHistoryEntityRepository;
+  private final CustomerEntityRepository customerEntityRepository;
 
   @Autowired
   public JupiteroptController(AccountEntityRepository accountEntityRepository,
-                              TransferHistoryEntityRepository transferHistoryEntityRepository) {
+                              TransferHistoryEntityRepository transferHistoryEntityRepository,
+                              CustomerEntityRepository customerEntityRepository) {
     this.accountEntityRepository = accountEntityRepository;
     this.transferHistoryEntityRepository = transferHistoryEntityRepository;
+    this.customerEntityRepository = customerEntityRepository;
   }
 
   /**
-   * Transfer from account to account.
+   * Create customer account and add initial deposit.
    *
-   * @param dto - TransferDto data.
-   * @return - TransferResultDto.
+   * @param dto - CreateAccountDto.
+   * @return - AccountEntity.
    */
   @PutMapping(path = "/bank/createAccount")
   @ResponseBody
-  public TransferResultDto createAccount(@RequestBody TransferDto dto) {
-//    repository.save(entity);
-    return null;
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public ResponseEntity<AccountEntity> createAccount(@RequestBody CreateAccountDto dto) {
+    String fName = Optional.ofNullable(dto.getFirstName())
+        .orElseThrow(() -> new AppException("Customer name is empty"));
+    String lName = Optional.ofNullable(dto.getLastName())
+        .orElseThrow(() -> new AppException("Customer name is empty"));
+    double amount = Optional.of(dto.getInitialDeposit())
+        .filter(value -> value > 0)
+        .orElseThrow(() -> new AppException("Initial deposit shuld be > 0"));
+    CustomerEntity customerEntity = new CustomerEntity();
+    customerEntity.setFirstName(fName);
+    customerEntity.setLastName(lName);
+    AccountEntity accountEntity = new AccountEntity();
+    accountEntity.setBalance(amount);
+    accountEntity.setCustomerEntity(customerEntity);
+    accountEntityRepository.save(accountEntity);
+    return new ResponseEntity<>(accountEntity, HttpStatus.OK);
   }
-
 
   /**
    * Transfer from account to account.
@@ -53,9 +77,15 @@ public class JupiteroptController {
    */
   @PostMapping(path = "/bank/transfer")
   @ResponseBody
-  public TransferResultDto transfer(@RequestBody TransferDto dto) {
-//    repository.save(entity);
-    return null;
+  public ResponseEntity<TransferHistoryEntity> transfer(@RequestBody TransferDto dto) {
+    AccountEntity from = Optional.ofNullable(accountEntityRepository.findByAccountId(dto.getAccountFrom()))
+        .orElseThrow(IllegalArgumentException::new);
+    AccountEntity to = Optional.ofNullable(accountEntityRepository.findByAccountId(dto.getAccountTo()))
+        .orElseThrow(IllegalArgumentException::new);
+
+//    AccountEntity from = accountEntityRepository.findByAccountId(dto.getAccountFrom())
+//        .o
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   /**
@@ -66,8 +96,8 @@ public class JupiteroptController {
    */
   @GetMapping("/bank/{account}/balance")
   @ResponseBody
-  public AccountEntity getAccountById(@PathVariable long account) {
-    return accountEntityRepository.findByAccountId(account);
+  public ResponseEntity<AccountEntity> getAccountById(@PathVariable long account) {
+    return new ResponseEntity<>(accountEntityRepository.findByAccountId(account), HttpStatus.OK);
   }
 
   /**
@@ -79,8 +109,9 @@ public class JupiteroptController {
    */
   @GetMapping("/bank/history/")
   @ResponseBody
-  public List<TransferHistoryEntity> getHistoryByAccountId(@RequestParam long accountFrom, @RequestParam long accountTo) {
-    return transferHistoryEntityRepository.findByAccountFromIsAndAccountToIs(accountFrom, accountTo);
+  public ResponseEntity<List<TransferHistoryEntity>> getHistoryByAccountId(@RequestParam long accountFrom, @RequestParam long accountTo) {
+    return new ResponseEntity<>(
+        transferHistoryEntityRepository.findByAccountFromIsAndAccountToIs(accountFrom, accountTo), HttpStatus.OK);
   }
 
 }
