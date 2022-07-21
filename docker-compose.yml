@@ -1,22 +1,24 @@
 version: "3"
     
 services:
-#  app:
-#    depends_on:
-#      - mysqldb
-#    image: 'jupiteropt-assessment.jar'
-#    ports:
-#      - "8081:8080"
-#    environment:
-#      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/banking
-#      - SPRING_DATASOURCE_USERNAME=admin
-#      - SPRING_DATASOURCE_PASSWORD=An0thrS3crt
-#      - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
-#      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=com.mysql.cj.jdbc.Driver
-#
+  app:
+    depends_on:
+      - mysqldb
+    platform: linux/arm64/v8
+    image: 'jupiteropt-assessment.jar'
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/banking
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=An0thrS3crt
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_SHOW-SQL=true
+
   mysqldb:
-    platform: linux/x86_64
-    image: mysql:8
+    platform: linux/arm64/v8
+    image: mysql:8-oracle
     volumes:
       - db_data:/var/lib/mysql
     restart: always

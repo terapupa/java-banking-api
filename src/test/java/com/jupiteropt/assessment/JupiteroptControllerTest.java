@@ -67,17 +67,17 @@ public class JupiteroptControllerTest {
         createAccount(new CreateAccountDto("first", "last", 0, -1)));
   }
 
-  @Test
-  void transferTest() {
-
-    TransferHistoryEntity entity = controller.
-        transfer(new TransferDto(1, 2, 10)).getBody();
-//    String guid = "test";
-//    when(jiobitRepository.findByGuid(any())).thenReturn(List.of(new JiobitEntity(guid,1,1,1,1)));
-//    List<JiobitEntity> entity = controller.getByGuid(guid);
-//    assertEquals(entity.size(), 1);
-    assertNotNull(entity);
-  }
+//  @Test
+//  void transferTest() {
+//
+//    TransferHistoryEntity entity = controller.
+//        transfer(new TransferDto(1, 2, 10)).getBody();
+////    String guid = "test";
+////    when(jiobitRepository.findByGuid(any())).thenReturn(List.of(new JiobitEntity(guid,1,1,1,1)));
+////    List<JiobitEntity> entity = controller.getByGuid(guid);
+////    assertEquals(entity.size(), 1);
+//    assertNotNull(entity);
+//  }
 
   @Test
   void getAccountByIdTest() {
